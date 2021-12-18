@@ -1,9 +1,15 @@
 package cn.jaylong.lab.cqrs.po;
 
-import cn.jaylong.lab.cqrs.cmd.SaveLabChildCmd;
+import cn.hutool.core.util.StrUtil;
+import cn.jaylong.lab.cqrs.cmd.AddLabChildCmd;
+import cn.jaylong.lab.cqrs.cmd.ConfigureLabChildCmd;
+import cn.jaylong.lab.cqrs.cmd.DeleteLabChildCmd;
+import cn.jaylong.lab.cqrs.cmd.UpdateLabChildCmd;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.axonframework.commandhandling.CommandHandler;
+import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.modelling.command.EntityId;
 import org.hibernate.Hibernate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -46,7 +52,7 @@ public class LabChildOne {
     @Column(name = "lab_id", nullable = false)
     private String labId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lab_id",
             insertable = false,
             updatable = false,
@@ -56,11 +62,27 @@ public class LabChildOne {
     @EqualsAndHashCode.Exclude
     private Lab lab;
 
-    public LabChildOne(SaveLabChildCmd cmd) {
-        this.labId = cmd.getLabId();
-        this.id = cmd.getId();
-        this.name = cmd.getName();
-        this.zone = cmd.getZone();
+    public LabChildOne(ConfigureLabChildCmd cmd){
+        configure(cmd);
+    }
+
+    @SneakyThrows
+    @CommandHandler
+    public void updateLabChildOne(UpdateLabChildCmd cmd) {
+        configure(cmd);
+    }
+
+    private void configure(ConfigureLabChildCmd cmd){
+        labId = cmd.getLabId();
+        if (StrUtil.isNotBlank(cmd.getId())) {
+            id = cmd.getId();
+        }
+        if (StrUtil.isNotBlank(cmd.getName())) {
+            name = cmd.getName();
+        }
+        if (StrUtil.isNotBlank(cmd.getZone())) {
+            zone = cmd.getZone();
+        }
     }
 
     @Override

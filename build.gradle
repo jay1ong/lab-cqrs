@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'org.springframework.boot' version '2.6.0'
+
 }
 
 group = group
@@ -25,6 +26,7 @@ repositories {
             username = repoUsername
             password = repoPassword
         }
+        allowInsecureProtocol(true)
     }
     maven {
         url 'https://maven.aliyun.com/repository/public/'

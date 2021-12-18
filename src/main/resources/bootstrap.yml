@@ -1,6 +1,6 @@
 spring:
   application:
-    name: @name@
+    name: @projectName@
   cloud:
     nacos:
       discovery:
@@ -20,3 +20,8 @@ spring:
     active: ${SPRING-PROFILES-ACTIVE:dev}
   main:
     banner-mode: off
+lab:
+  web:
+    advice:
+      exclude-packages: ["springfox.**"]
+

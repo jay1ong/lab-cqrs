@@ -1,12 +1,14 @@
 package cn.jaylong.lab.cqrs.po;
 
-import cn.jaylong.lab.cqrs.cmd.SaveLabChildCmd;
+import cn.jaylong.lab.cqrs.cmd.AddLabChildCmd;
+import cn.jaylong.lab.cqrs.cmd.DeleteLabChildCmd;
 import cn.jaylong.lab.cqrs.cmd.SaveLabCmd;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
+import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.modelling.command.AggregateMember;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hibernate.Hibernate;
@@ -53,11 +55,13 @@ public class Lab {
     @AggregateMember
     @Builder.Default
     @OneToMany(mappedBy = "lab",
-            cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE, CascadeType.REMOVE},
-            fetch = FetchType.EAGER)
+            cascade = {CascadeType.ALL},
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
     @org.hibernate.annotations.ForeignKey(name = "none")
     @JsonManagedReference("lab_child_one")
-    private Set<LabChildOne> labChildOneSet = new HashSet<>();
+    @ToString.Exclude
+    private Set<LabChildOne> childOnes = new HashSet<>();
 
     public Lab(SaveLabCmd cmd) {
         this.id = cmd.getId();
@@ -67,8 +71,14 @@ public class Lab {
 
     @SneakyThrows
     @CommandHandler
-    public void saveLabChildOne(SaveLabChildCmd cmd) {
-        labChildOneSet.add(new LabChildOne(cmd));
+    public void addLabChildOne(AddLabChildCmd cmd) {
+        childOnes.add(new LabChildOne(cmd));
+    }
+
+    @SneakyThrows
+    @CommandHandler
+    public void deleteLabChildOne(DeleteLabChildCmd cmd) {
+        childOnes.remove(new LabChildOne(cmd));
     }
 
     @Override
