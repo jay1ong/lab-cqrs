@@ -4,11 +4,15 @@ import cn.jaylong.lab.cqrs.cmd.AddLabChildCmd;
 import cn.jaylong.lab.cqrs.cmd.DeleteLabChildCmd;
 import cn.jaylong.lab.cqrs.cmd.SaveLabCmd;
 import cn.jaylong.lab.cqrs.cmd.UpdateLabChildCmd;
+import cn.jaylong.lab.cqrs.po.Lab;
+import cn.jaylong.lab.cqrs.repository.LabJpaRepository;
 import cn.jaylong.snowflake.Snowflake;
 import lombok.AllArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,6 +28,8 @@ public class LabController {
     private final CommandGateway commandGateway;
 
     private final Snowflake snowflake;
+
+    private final LabJpaRepository jpaRepository;
 
     @PostMapping
     public void save(@RequestBody SaveLabCmd cmd) {
@@ -54,6 +60,11 @@ public class LabController {
         cmd.setId(id);
         cmd.setLabId(labId);
         commandGateway.sendAndWait(cmd);
+    }
+
+    @GetMapping("/jpa/repo")
+    public List<Lab> jpaRepo(){
+        return jpaRepository.findAll();
     }
 
 
